@@ -1,102 +1,75 @@
-User Management Service
+# User Management Service
 
-A Spring Boot based User Management service with JWT authentication, role-based authorization, and Kafka event publishing.
+A Spring Boot application that provides **JWT-based authentication**, **role-based authorization**, and **admin-protected APIs**.  
+The project demonstrates secure user registration, login, role management, and event publishing using Kafka.
 
-🚀 Tech Stack & Versions
+---
 
-Java: 17
+## Features
 
-Spring Boot: 3.5.x
+- User Registration & Login with JWT authentication  
+- Role-based access control (USER, ADMIN)  
+- Admin-only APIs using method-level security  
+- Kafka event publishing on user actions (register, login)  
+- Stateless security using Spring Security  
+- Docker-based setup for MySQL and Kafka  
 
-Spring Security (JWT-based)
+---
 
-MySQL: 8 (Docker)
+## Tech Stack
 
-Apache Kafka (Docker)
+- Java 17  
+- Spring Boot 3.x  
+- Spring Security (JWT)  
+- Spring Data JPA (Hibernate)  
+- MySQL  
+- Apache Kafka  
+- Docker & Docker Compose  
 
-Hibernate / JPA
+---
 
-Docker & Docker Compose
+## API Overview
 
-📦 Features
+### Authentication
+- `POST /api/users/register` – Register a new user  
+- `POST /api/users/login` – Login and receive JWT  
 
-User Registration & Login (JWT Authentication)
+### User
+- `GET /api/users/me` – Get logged-in user profile  
 
-Role-based Authorization (USER / ADMIN)
+### Role Management (Admin only)
+- `POST /api/roles` – Create new roles  
+- `POST /api/users/{userId}/roles` – Assign roles to a user  
 
-Admin-only APIs using @PreAuthorize
+### Admin
+- `GET /api/admin/stats` – Get user statistics (admin only)  
 
-Kafka events on user registration & login
+---
 
-Stateless authentication (No sessions)
+## Security Design
 
-▶️ Run Locally (Without Docker)
-./mvnw spring-boot:run
+- JWT is used for authentication (stateless)  
+- Roles are stored as `ROLE_*` and mapped to Spring authorities  
+- Authorization is enforced using:
+  - URL-based security rules
+  - `@PreAuthorize` for method-level protection  
+- Custom `JwtAuthenticationFilter` validates tokens and sets security context  
 
+---
 
-Note:
-You must have MySQL & Kafka running locally and update application.yml accordingly.
+## Database Setup
 
-🐳 Run Using Docker (Recommended)
-docker-compose up
+- No manual schema creation required  
+- Tables are automatically created by Hibernate on application startup  
+- MySQL runs inside Docker  
 
+---
 
-This starts:
+## Running the Application
 
-MySQL
+### 1. Docker-based setup (Recommended)
 
-Kafka
+Make sure Docker is running, then execute:
 
-Zookeeper
-
-Spring Boot Application
-
-✔ No manual DB setup required.
-
-🗄 Database Schema
-
-Database schema is auto-created by Hibernate
-
-Tables: users, roles, user_roles
-
-Controlled via:
-
-spring.jpa.hibernate.ddl-auto=update
-
-
-❌ No manual SQL or migrations required.
-
-🔐 Security Design
-
-JWT token generated on login
-
-Token validated via custom JwtAuthenticationFilter
-
-User roles stored in JWT
-
-Authorization enforced using:
-
-SecurityFilterChain
-
-@PreAuthorize("hasRole('ADMIN')")
-
-📡 Kafka Integration
-
-User registration & login events published to Kafka
-
-Producer configured using Spring Kafka
-
-Events are JSON-based
-
-🧠 Design Decisions & Assumptions
-
-Stateless authentication for scalability
-
-Role-based access using Spring Security best practices
-
-Docker used to simplify environment setup
-
-Minimal configuration to keep assignment clean and explainable
-
-✅ How to Start
+```bash
 docker-compose up

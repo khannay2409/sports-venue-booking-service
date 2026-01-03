@@ -1,9 +1,12 @@
 package com.company.user_management.controller;
 
+import com.company.user_management.constants.Constants;
 import com.company.user_management.dto.request.CreateRoleRequest;
-import com.company.user_management.entity.Role;
-import com.company.user_management.repository.RoleRepository;
+import com.company.user_management.dto.response.ApiResponse;
+import com.company.user_management.service.RoleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,20 +15,18 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class RoleController {
 
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public void createRole(@RequestBody CreateRoleRequest request) {
+    public ResponseEntity<ApiResponse<Void>> createRole(@RequestBody CreateRoleRequest request) {
 
-        if (request.getName() == null || request.getName().isBlank()) {
-            throw new RuntimeException("Role name cannot be empty");
-        }
-
-        if (roleRepository.findByName(request.getName()).isPresent()) {
-            throw new RuntimeException("Role already exists");
-        }
-
-        roleRepository.save(Role.builder().name(request.getName()).build());
+        roleService.createRole(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.<Void>builder()
+                        .status(Constants.STATUS_SUCCESS)
+                        .message("Role created successfully")
+                        .data(null)
+                        .build());
     }
 }

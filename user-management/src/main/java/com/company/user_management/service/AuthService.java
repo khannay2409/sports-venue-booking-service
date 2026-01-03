@@ -6,6 +6,8 @@ import com.company.user_management.dto.request.RegisterRequest;
 import com.company.user_management.dto.response.AuthResponse;
 import com.company.user_management.entity.Role;
 import com.company.user_management.entity.User;
+import com.company.user_management.exceptions.BadRequestException;
+import com.company.user_management.exceptions.RoleNotFoundException;
 import com.company.user_management.repository.RoleRepository;
 import com.company.user_management.repository.UserRepository;
 import com.company.user_management.security.JwtTokenProvider;
@@ -33,19 +35,10 @@ public class AuthService {
 
     public void register(RegisterRequest request) {
 
-        if (request == null
-                || request.getEmail() == null || request.getEmail().isBlank()
-                || request.getUsername() == null || request.getUsername().isBlank()
-                || request.getPassword() == null || request.getPassword().isBlank()) {
-            throw new RuntimeException("Invalid registration request");
-        }
-
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
-        }
+        validateRegisterRequest(request);
 
         Role userRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new RuntimeException("ROLE_USER not found"));
+                .orElseThrow(() -> new RoleNotFoundException("Role not found in DB" + "ROLE_USER"));
 
         User user = User.builder()
                 .username(request.getUsername())
@@ -61,20 +54,15 @@ public class AuthService {
                 user.getEmail());
     }
 
-
     public AuthResponse login(LoginRequest request) {
 
-        if (request == null
-                || request.getEmail() == null || request.getEmail().isBlank()
-                || request.getPassword() == null || request.getPassword().isBlank()) {
-            throw new RuntimeException("Invalid login request");
-        }
+        validateLoginRequest(request);
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(() -> new BadRequestException("Invalid credentials"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new BadRequestException("Invalid credentials");
         }
 
         user.setLastLogin(LocalDateTime.now());
@@ -93,5 +81,37 @@ public class AuthService {
         String token = jwtTokenProvider.generateToken(user.getUsername(), roles);
 
         return new AuthResponse(token);
+    }
+
+    private void validateLoginRequest(LoginRequest request)
+    {
+        if (request == null) {
+            throw new BadRequestException("Login request cannot be null");
+        }
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            throw new BadRequestException("Email is required and cannot be blank");
+        }
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            throw new BadRequestException("Password is required and cannot be blank");
+        }
+    }
+
+    private void validateRegisterRequest(RegisterRequest request) {
+
+        if (request == null) {
+            throw new BadRequestException("Registration request cannot be null");
+        }
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            throw new BadRequestException("Email is required and cannot be blank");
+        }
+        if (request.getUsername() == null || request.getUsername().isBlank()) {
+            throw new BadRequestException("Username is required and cannot be blank");
+        }
+        if (request.getPassword() == null || request.getPassword().isBlank()) {
+            throw new BadRequestException("Password is required and cannot be blank");
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new BadRequestException("Email already registered");
+        }
     }
 }

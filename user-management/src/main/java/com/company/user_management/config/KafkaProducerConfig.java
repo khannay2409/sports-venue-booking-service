@@ -1,4 +1,4 @@
-package com.company.user_management.Config;
+package com.company.user_management.config;
 
 
 import com.company.user_management.dto.request.UserEvent;

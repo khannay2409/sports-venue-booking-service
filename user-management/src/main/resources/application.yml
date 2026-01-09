@@ -1,10 +1,8 @@
 spring:
   application:
-    name: user-management
+    name: sports-venue-booking-app
+
   datasource:
-    url: jdbc:mysql://localhost:3306/userdb
-    username: appuser
-    password: apppass
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -16,11 +14,10 @@ spring:
         format_sql: true
 
   kafka:
-    bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 jwt:
   secret: TaK+HaV^uvCHEFsEVfypW#7g9^k*Z8$V
-  Expiration: 3600000
-
+  expiration: 3600000

@@ -133,7 +133,3 @@ Designed to reflect real-world backend service patterns
 Author
 
 Yatharth Khanna
-
-POST /bookings – Book a slot
-
-PUT /bookings/{id}/cancel – Cancel booking

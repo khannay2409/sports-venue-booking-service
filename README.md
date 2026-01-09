@@ -52,6 +52,43 @@ Cancelled bookings free the slot immediately
 
 Single MySQL instance (no external cache)
 
+Prerequisites (One-Time Setup)
+
+Before using admin-protected APIs (such as venue and slot creation), the following one-time database setup is required.
+
+1️⃣ Insert Roles into Database
+
+Roles are not hardcoded and must be inserted manually.
+
+INSERT INTO roles (name) VALUES ('ROLE_USER');
+INSERT INTO roles (name) VALUES ('ROLE_ADMIN');
+
+2️⃣ Register a User via API
+
+Register a user using the authentication API:
+
+POST /api/auth/register
+
+
+This creates a user with the default ROLE_USER.
+
+3️⃣ Promote User to Admin (Database Update)
+
+To access admin-only APIs, promote the user to ROLE_ADMIN.
+
+Example (assign admin role to user with user_id = 1):
+
+INSERT INTO user_roles (user_id, role_id)
+SELECT 1, id FROM roles WHERE name = 'ROLE_ADMIN';
+
+4️⃣ Login Again to Get Updated JWT
+
+After role assignment:
+
+Login again using POST /api/auth/login
+
+Use the new JWT token to access admin APIs
+
 Sports are selected only from the public sports list API
 
 Sports List Constraint

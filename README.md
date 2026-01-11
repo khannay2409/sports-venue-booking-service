@@ -1,125 +1,106 @@
-Sports Venue Booking Service
+# 🏟️ Sports Venue Booking Service
 
-A Spring Boot backend service that manages sports venues, time slots, availability, and bookings with JWT-based authentication.
-This project simulates a real-world sports ground / turf booking system.
+A **Spring Boot backend service** that manages **sports venues, time slots, availability, and bookings** with **JWT-based authentication**.
 
-The service is fully Dockerized and uses MySQL for persistence.
+This project simulates a real-world **sports ground / turf booking system** and focuses on **backend correctness, conflict handling, and clean API design**.
 
-Features
-Core Booking Features
+The service is fully **Dockerized** and uses **MySQL** for persistence.
 
-Venue management (add, list, view, delete)
+---
 
-Time slot management per venue (no overlapping slots)
+## ✨ Features
 
-Venue availability search by sport & time range
+### Core Booking Features
+- Venue management (add, list, view, delete)
+- Time slot management per venue (**no overlapping slots**)
+- Venue availability search by sport & time range
+- Slot booking with conflict prevention (**no double booking**)
+- Booking cancellation (**slot freed immediately**)
 
-Slot booking with conflict prevention (no double booking)
+### Authentication & Authorization (Supporting)
+- User registration & login using JWT
+- Role-based access control (`USER`, `ADMIN`)
+- Admin-protected APIs (e.g. venue & slot creation)
 
-Booking cancellation (slot freed immediately)
+---
 
-Authentication & Authorization (Supporting)
+## 🛠️ Tech Stack
 
-User registration & login with JWT
+- **Java 17**
+- **Spring Boot 3.x**
+- **Spring Security (JWT)**
+- **Spring Data JPA (Hibernate)**
+- **MySQL**
+- **Docker & Docker Compose**
 
-Role-based access control (USER, ADMIN)
+---
 
-Admin-protected APIs (e.g. venue creation)
+## 📌 Assumptions
 
-Tech Stack
+- One booking corresponds to **exactly one slot**
+- Slots are **predefined by venue admins**
+- Slot timings are **immutable once booked**
+- Cancelled bookings free the slot immediately
+- Single MySQL instance (no external cache)
+- Sports are selected **only from the public sports list API**
 
-Java 17
+---
 
-Spring Boot 3.x
+## 🏏 Sports List Constraint
 
-Spring Security (JWT)
-
-Spring Data JPA (Hibernate)
-
-MySQL
-
-Docker & Docker Compose
-
-Assumptions
-
-One booking corresponds to exactly one slot
-
-Slots are predefined by venue admins
-
-Slot timings are immutable once booked
-
-Cancelled bookings free the slot immediately
-
-Single MySQL instance (no external cache)
-
-Prerequisites (One-Time Setup)
-
-Before using admin-protected APIs (such as venue and slot creation), the following one-time database setup is required.
-
-1️⃣ Insert Roles into Database
-
-Roles are not hardcoded and must be inserted manually.
-
-INSERT INTO roles (name) VALUES ('ROLE_USER');
-INSERT INTO roles (name) VALUES ('ROLE_ADMIN');
-
-2️⃣ Register a User via API
-
-Register a user using the authentication API:
-
-POST /api/auth/register
-
-
-This creates a user with the default ROLE_USER.
-
-3️⃣ Promote User to Admin (Database Update)
-
-To access admin-only APIs, promote the user to ROLE_ADMIN.
-
-Example (assign admin role to user with user_id = 1):
-
-INSERT INTO user_roles (user_id, role_id)
-SELECT 1, id FROM roles WHERE name = 'ROLE_ADMIN';
-
-4️⃣ Login Again to Get Updated JWT
-
-After role assignment:
-
-Login again using POST /api/auth/login
-
-Use the new JWT token to access admin APIs
-
-Sports are selected only from the public sports list API
-
-Sports List Constraint
-
-Sports data is fetched from the public API:
+Sports are fetched from the public API:
 
 GET https://stapubox.com/sportslist/
 
 
-Only sport_code / sport_id from this API is stored
+- Only `sport_code` / `sport_id` from this API is stored
+- No hardcoded sports in the database
 
-No hardcoded sports in the database
+---
 
-API Endpoints
+## 🔐 Prerequisites (One-Time Setup)
+
+### 1️⃣ Insert Roles into Database
+
+-sql
+INSERT INTO roles (name) VALUES ('ROLE_USER');
+INSERT INTO roles (name) VALUES ('ROLE_ADMIN');
+
+2️⃣ Register a User via API
+POST /api/auth/register
+
+
+By default, the user gets ROLE_USER.
+
+3️⃣ Promote User to Admin (DB Query)
+
+Example: make user with user_id = 1 an admin.
+
+INSERT INTO user_roles (user_id, role_id)
+SELECT 1, id FROM roles WHERE name = 'ROLE_ADMIN';
+
+4️⃣ Login Again
+
+Login again to receive an updated JWT token with admin privileges.
+
+🌐 API Endpoints
 Authentication
 
-POST /api/auth/register – Register a user
+POST /api/auth/register – Register user
 
 POST /api/auth/login – Login and receive JWT
 
 Venue Management (Admin)
 
-POST /venues – Add a venue
+POST /venues – Add venue
 
-GET /venues – List all venues
+GET /venues – List venues
 
 Slot Management (Admin)
 
-POST /venues/{venueId}/slots – Add slots for a venue
+POST /venues/{venueId}/slots – Add slots
 
-GET /venues/{venueId}/slots – Get slots of a venue
+GET /venues/{venueId}/slots – List slots
 
 Availability
 
@@ -131,10 +112,9 @@ POST /bookings – Book a slot
 
 PUT /bookings/{id}/cancel – Cancel booking
 
-Running the Application
-Docker Setup (Recommended)
+🐳 Running the Application
 
-Make sure Docker is running, then execute:
+Make sure Docker is running, then:
 
 docker-compose up --build
 
@@ -145,28 +125,14 @@ Spring Boot application
 
 MySQL database
 
-Database & Constraints
-
-Tables auto-created by Hibernate
-
-Unique constraint ensures one booking per slot
-
-Indexes added for:
-
-venue + time range
-
-sport code
-
-slot lookup
-
-Notes
+🧠 Notes
 
 Authentication is implemented as a supporting domain
 
-Core focus of the project is venue availability & booking logic
+Core focus is on availability, booking, and conflict handling
 
 Designed to reflect real-world backend service patterns
 
-Author
+👤 Author
 
 Yatharth Khanna

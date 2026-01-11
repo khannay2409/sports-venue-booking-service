@@ -83,6 +83,8 @@ SELECT 1, id FROM roles WHERE name = 'ROLE_ADMIN';
 
 Login again to receive an updated JWT token with admin privileges.
 
+--
+
 🌐 API Endpoints
 Authentication
 
